@@ -8,8 +8,9 @@
 #
 
 library(shiny)
-library(here)
 library(rio)
+library(plyr) #has to come before here package -> have same funciton
+library(here)
 
 df.qst.z <- import(here("data","qst_z_values.csv")) # what is this doing? get the working directory where my R project is with here(), then go to the subdirectory. Thanks to https://github.com/jennybc/here_here and https://epirhandbook.com/en/new_pages/importing.html
 
@@ -35,12 +36,18 @@ ui <- fluidPage(
                                        "Female" = "f"),
                         selected = NULL),
             
-            selectInput("multiple",
-                        label = "Multiple Areas tested?",
-                        choices = list("",
-                                       "Yes" = TRUE,
-                                       "No" = FALSE),
-                        selected = NULL),
+            numericInput("age",
+                         "Age",
+                         value = 0,
+                         min = 20,
+                         max = 120),
+            
+            # selectInput("multiple",
+            #             label = "Multiple Areas tested?",
+            #             choices = list("",
+            #                            "Yes" = TRUE,
+            #                            "No" = FALSE),
+            #             selected = NULL),
             
             selectInput("area",
                         label = "Area Tested",
@@ -74,7 +81,7 @@ ui <- fluidPage(
         mainPanel(
            plotOutput("distPlot"),#,
            
-           verbatimTextOutput("cdt.output"),
+           verbatimTextOutput("cdt.output")
 
         )
     )
@@ -82,6 +89,8 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+  
+    #age <- round_any(input$age, 10, f = floor)
     
     output$cdt.output <- renderText({
       cdt.sum <- ((32-input$cdt1) + (32-input$cdt2) + (32-input$cdt3))/3
@@ -89,6 +98,8 @@ server <- function(input, output) {
       
       cdt.sum.log <- log10(cdt.sum)
       
+      # round_any(29, 10, f = floor) -> returns 20
+      df.control <- subset(df.qst.z, gender == input$gender & age.low == round_any(input$age, 10, f = floor))
       
       
     })

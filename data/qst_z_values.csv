@@ -1,4 +1,4 @@
-﻿parameter,gender,age (lower),area,mean,sd
+﻿parameter,gender,age.low,area,mean,sd
 CDT,m,20,face,-0.062,0.228
 CDT,m,20,hand,0.035,0.223
 CDT,m,20,feet,0.38,0.249
