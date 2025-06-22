@@ -55,7 +55,7 @@ ui <- fluidPage(
                                        "Face" = "face",
                                        "Hand" = "hand",
                                        "Feet" = "feet"),
-                        multiple = TRUE,
+                        #multiple = TRUE,
                         selected = NULL),
         
             numericInput("cdt1",
@@ -88,18 +88,39 @@ ui <- fluidPage(
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
   
     #age <- round_any(input$age, 10, f = floor)
+  
+    filtered.data <- reactive({
+        req(input$gender, input$age, input$area)
+        
+        
+        # round_any(29, 10, f = floor) -> returns 20
+        
+        subset(df.qst.z, age.low == round_any(input$age, 10, f = floor) &
+                 gender == input$gender[[1]] &
+                 area == input$area[[1]])
+        
+    })
+    
+    cdt.z.score <- reactive({
+        req(input$cdt1, input$cdt2, input$cdt3)
+      
+        cdt.sum <- ((32-input$cdt1) + (32-input$cdt2) + (32-input$cdt3))/3
+        #paste("Arithmetischer Mittelwert:", cdt.sum)
+        
+        cdt.sum.log <- log10(cdt.sum)
+        
+        df.filtered <- filtered.data()
+        
+        # RETURN
+        -((cdt.sum.log - df.filtered$mean) / df.filtered$sd)
+        
+    })
     
     output$cdt.output <- renderText({
-      cdt.sum <- ((32-input$cdt1) + (32-input$cdt2) + (32-input$cdt3))/3
-      paste("Arithmetischer Mittelwert:", cdt.sum)
-      
-      cdt.sum.log <- log10(cdt.sum)
-      
-      # round_any(29, 10, f = floor) -> returns 20
-      df.control <- subset(df.qst.z, gender == input$gender & age.low == round_any(input$age, 10, f = floor))
+        cdt.z.score()
       
       
     })
