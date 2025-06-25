@@ -9,28 +9,64 @@ module_files <- list.files("modules", pattern = "\\.R$",
 lapply(module_files, source)
 
 # Define UI for application
-ui <- page_sidebar(
+ui <- navbarPage(
+  id = "qst",
 
-    # Application title
-    title = "QST",
-
-    # Sidebar 
-    sidebar = sidebar(
+  # Application title
+  title = "QST",
+  
+  tabPanel(
+    title = "Setup",
+    
+    selectInput("gender",
+                label = "Gender",
+                choices = list("",
+                               "Male" = "m",
+                               "Female" = "f"),
+                selected = NULL),
+    
+    sliderInput(
+      inputId = "age",
+      label = "Age",
+      min = 20,
+      max = 100,
+      value = 60
+    ),
+    selectInput("area",
+                label = "Area Tested",
+                choices = list("",
+                               "Face" = "face",
+                               "Hand" = "hand",
+                               "Feet" = "feet"),
+                #multiple = TRUE,
+                selected = NULL),
+    
+    actionButton(
+      inputId = "bt.done",
+      label = "Done"
+    )
+  ),
+  
+  tabPanel(
+    title = "Inputs",
+    
+    qstDataUI("qst1")
+  ),
+  
+  tabPanel(
+    title = "Table",
+    
+    tableOutput("result")
+  ),
+  
+  tabPanel(
+    title = "Plot",
+    
+    plotOutput("test")
+  )
+)
           
-          selectInput("gender",
-                      label = "Gender",
-                      choices = list("",
-                                     "Male" = "m",
-                                     "Female" = "f"),
-                      selected = NULL),
           
-          sliderInput(
-            inputId = "age",
-            label = "Age",
-            min = 20,
-            max = 100,
-            value = 60
-          ),
 
           
           # 
@@ -41,57 +77,87 @@ ui <- page_sidebar(
           # #                            "No" = FALSE),
           # #             selected = NULL),
           # 
-          selectInput("area",
-                      label = "Area Tested",
-                      choices = list("",
-                                     "Face" = "face",
-                                     "Hand" = "hand",
-                                     "Feet" = "feet"),
-                      #multiple = TRUE,
-                      selected = NULL),
-          plotOutput("test")
-        ),
-
-        # Show a plot of the generated distribution
-        # navset_card_underline(
           
-          # nav_panel(
-          #   title = "Face",
-            
-            qstDataUI("name1"),
-            tableOutput("result")
+          # plotOutput("test")
+       
+        
+    
             # plotOutput(
             #   outputId = "test"
             # )
         #   )
         # )
-)   
+ 
             
 
 
 # Define server logic
 server <- function(input, output, session) {
   
+  hideTab(
+    inputId = "qst",
+    target = "Inputs"
+  )
+  
+  hideTab(
+    inputId = "qst",
+    target = "Table"
+  )
+  
+  hideTab(
+    inputId = "qst",
+    target = "Plot"
+  )
+  
+  observeEvent(input$bt.done, {
+    showTab(
+      inputId = "qst",
+      target = "Inputs"
+    )
+  })
+  
+  # Reactives
+  gender <- reactive({input$gender[[1]]})
+  age <- reactive({input$age})
+  area <- reactive({input$area[[1]]})
+  
   # Get the logged data from the QST UI
   df.qst.data <- qstDataServer("name1")
   
-  output$result <- renderTable({
+  observe({
     req(df.qst.data())
-    df.qst.data()
+    
+    showTab(
+      inputId = "qst",
+      target = "Table"
+    )
+    
+    showTab(
+      inputId = "qst",
+      target = "Plot"
+    )
+  })
+  
+  # Get the z-scores
+  df.qst.zScores <- qstZScoreServer("zscore",df.qst.data,gender,age,area)
+  
+  output$result <- renderTable({
+    req(df.qst.zScores())
+    df.qst.zScores()
   })
   
   # Get the z-Scores
   output$test <- renderPlot({
     # z-Scores
-    req(df.qst.data())
-    df.qst.zScores <- qstZScore(
-      data = df.qst.data(),
-      gender = input$gender[[1]],
-      age = input$age,
-      area = input$area[[1]])
-
-    req(df.qst.zScores)
-    ggplot(df.qst.zScores, aes(x = parameter, y = logValue)) +
+    # Get the z-scores
+    # df.qst.zScores <- qstZScore(
+    #   data = df.qst.data(),
+    #   gender = input$gender[[1]],
+    #   age = input$age,
+    #   area = input$area[[1]])
+    
+    req(df.qst.zScores())
+    ggplot(df.qst.zScores(), aes(x = parameter, y = logValue)) +
       geom_point()
     
     # ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
