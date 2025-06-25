@@ -68,7 +68,8 @@ ui <- page_sidebar(
             title = "Face",
             
             qstDataUI("name1"),
-            tableOutput("result")
+            tableOutput("result"),
+            tableOutput("z")
           )
         )
 )   
@@ -100,21 +101,35 @@ ui <- page_sidebar(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
   
-  filtered.data <- reactive({
-    req(input$gender, input$age, input$area)
-    # round_any(29, 10, f = floor) -> returns 20
-    
-    subset(df.qst.z, age.low == round_any(input$age, 10, f = floor) &
-             gender == input$gender[[1]] &
-             area == input$area[[1]])
-    
-  })
+  # filtered.data <- reactive({
+  #   req(input$gender, input$age, input$area)
+  #   # round_any(29, 10, f = floor) -> returns 20
+  #   
+  #   subset(df.qst.z, age.low == round_any(input$age, 10, f = floor) &
+  #            gender == input$gender[[1]] &
+  #            area == input$area[[1]])
+  #   
+  # })
   
+  # Get the logged data from the QST UI
   df.qst.data <- qstDataServer("name1")
   
   output$result <- renderTable({
     req(df.qst.data())
     df.qst.data()
+  })
+  
+  output$z <- renderTable({
+    # z-Scores
+    req(df.qst.data())
+    df.qst.zScores <- qstZScore(
+      data = df.qst.data(),
+      gender = input$gender[[1]],
+      age = input$age,
+      area = input$area[[1]])
+    
+    req(df.qst.zScores)
+    df.qst.zScores
   })
   # 
   # export_data <- qstServer(id = "name1", data = filtered.data())

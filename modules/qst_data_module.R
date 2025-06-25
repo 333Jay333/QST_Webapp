@@ -1,11 +1,5 @@
 # qst_data_module.R
 
-library(rio)
-library(plyr) #has to come before here package -> have same function
-library(here)
-
-df.qst.z <- import(here("data","qst_z_values.csv")) # what is this doing? get the working directory where my R project is with here(), then go to the subdirectory. Thanks to https://github.com/jennybc/here_here and https://epirhandbook.com/en/new_pages/importing.html
-
 qstDataUI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -69,7 +63,7 @@ qstDataServer <- function(id) {
       wdt.sum <- ((input$wdt1-32) + (input$wdt2-32) + (input$wdt3-32))/3
       wdt.sum.log <- log10(wdt.sum)
       
-      df <- data.frame(test = c("CDT","WDT","TSL","CPT","HPT","PPT","MPT","MPS","WUR","MDT","VDT"), value = c(cdt.sum.log, wdt.sum.log, rep(0,9)))
+      df <- data.frame(parameter = c("CDT","WDT","TSL","CPT","HPT","PPT","MPT","MPS","WUR","MDT","VDT","PHS","DMA"), logValue = c(cdt.sum.log, wdt.sum.log, rep(0,11)))
       df
     })
     
