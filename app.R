@@ -10,7 +10,7 @@
 library(shiny)
 library(bslib)
 
-source("qst_module.R")
+source("qst_data_module.R")
 
 # Define UI for application that draws a histogram
 ui <- page_sidebar(
@@ -18,13 +18,8 @@ ui <- page_sidebar(
     # Application title
     title = "QST",
 
-    # Sidebar with a slider input for number of bins 
+    # Sidebar 
     sidebar = sidebar(
-          sliderInput("bins",
-                      "Number of bins:",
-                      min = 1,
-                      max = 50,
-                      value = 30),
           
           selectInput("gender",
                       label = "Gender",
@@ -32,12 +27,20 @@ ui <- page_sidebar(
                                      "Male" = "m",
                                      "Female" = "f"),
                       selected = NULL),
+          
+          sliderInput(
+            inputId = "age",
+            label = "Age",
+            min = 20,
+            max = 100,
+            value = 60
+          ),
 
-          numericInput("age",
-                       "Age",
-                       value = 0,
-                       min = 20,
-                       max = 120),
+          # numericInput("age",
+          #              "Age",
+          #              value = 0,
+          #              min = 20,
+          #              max = 120),
           # 
           # # selectInput("multiple",
           # #             label = "Multiple Areas tested?",
@@ -62,7 +65,8 @@ ui <- page_sidebar(
           nav_panel(
             title = "Face",
             
-            qstUI("name1")
+            qstDataUI("name1"),
+            tableOutput("result")
           )
         )
 )   
@@ -104,7 +108,17 @@ server <- function(input, output, session) {
     
   })
   
-  qstServer(id = "name1", data = filtered.data())
+  df.qst.data <- qstDataServer("name1")
+  
+  output$result <- renderTable({
+    req(df.qst.data())
+    df.qst.data()
+  })
+  # 
+  # export_data <- qstServer(id = "name1", data = filtered.data())
+  # 
+  # # Pass it to summary module
+  # summaryServer("name1", data = export_data)
   
     #age <- round_any(input$age, 10, f = floor)
   
