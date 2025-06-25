@@ -30,7 +30,7 @@ ui <- navbarPage(
       label = "Age",
       min = 20,
       max = 100,
-      value = 60
+      value = 20
     ),
     selectInput("area",
                 label = "Area Tested",
@@ -50,7 +50,11 @@ ui <- navbarPage(
   tabPanel(
     title = "Inputs",
     
-    qstDataUI("qst1")
+    qstDataUI("qst1"),
+    actionButton(
+      inputId = "bt.analyse",
+      label = "Analyse"
+    )
   ),
   
   tabPanel(
@@ -103,7 +107,7 @@ server <- function(input, output, session) {
     inputId = "qst",
     target = "Table"
   )
-  
+
   hideTab(
     inputId = "qst",
     target = "Plot"
@@ -116,17 +120,7 @@ server <- function(input, output, session) {
     )
   })
   
-  # Reactives
-  gender <- reactive({input$gender[[1]]})
-  age <- reactive({input$age})
-  area <- reactive({input$area[[1]]})
-  
-  # Get the logged data from the QST UI
-  df.qst.data <- qstDataServer("name1")
-  
-  observe({
-    req(df.qst.data())
-    
+  observeEvent(input$bt.analyse, {
     showTab(
       inputId = "qst",
       target = "Table"
@@ -138,6 +132,14 @@ server <- function(input, output, session) {
     )
   })
   
+  # Reactives
+  gender <- reactive({input$gender[[1]]})
+  age <- reactive({input$age})
+  area <- reactive({input$area[[1]]})
+  
+  # Get the logged data from the QST UI
+  df.qst.data <- qstDataServer("qst1")
+  
   # Get the z-scores
   df.qst.zScores <- qstZScoreServer("zscore",df.qst.data,gender,age,area)
   
@@ -146,8 +148,17 @@ server <- function(input, output, session) {
     df.qst.zScores()
   })
   
-  # Get the z-Scores
   output$test <- renderPlot({
+    req(df.qst.zScores())
+    ggplot(df.qst.zScores(), aes(x = parameter, y = logValue)) +
+      geom_point()
+  })
+  
+  
+  
+  
+  # Get the z-Scores
+  
     # z-Scores
     # Get the z-scores
     # df.qst.zScores <- qstZScore(
@@ -156,13 +167,10 @@ server <- function(input, output, session) {
     #   age = input$age,
     #   area = input$area[[1]])
     
-    req(df.qst.zScores())
-    ggplot(df.qst.zScores(), aes(x = parameter, y = logValue)) +
-      geom_point()
+    
     
     # ggplot(iris, aes(Sepal.Length, Sepal.Width)) +
     #   geom_point()
-  })
   
     # 
     # output$distPlot <- renderPlot({

@@ -43,18 +43,13 @@ qstDataUI <- function(id) {
       label = "WDT Value 3 (°C)",
       value = 34,
       min = 32,
-      max = 50),
-    
-    actionButton(
-      inputId = ns("bt.analyse"),
-      label = "Analyse"
-    )
+      max = 50)
   )
 }
 
 qstDataServer <- function(id) {
   moduleServer(id, function(input, output, session) {
-    data <- eventReactive(input$bt.analyse, {
+    reactive({
       req(input$cdt1, input$cdt2, input$cdt3)
       cdt.sum <- ((32-input$cdt1) + (32-input$cdt2) + (32-input$cdt3))/3
       cdt.sum.log <- log10(cdt.sum)
@@ -65,14 +60,6 @@ qstDataServer <- function(id) {
       
       df <- data.frame(parameter = c("CDT","WDT","TSL","CPT","HPT","PPT","MPT","MPS","WUR","MDT","VDT","PHS","DMA"), logValue = c(cdt.sum.log, wdt.sum.log, rep(0,11)))
       df
-    })
-    
-    # Return the reactive dataframe
-    return(data)
-    
-    # Return the button press
-    eventReactive(input$bt.analyse, {
-      TRUE
     })
   })
 }
