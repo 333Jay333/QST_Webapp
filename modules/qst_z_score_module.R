@@ -27,6 +27,9 @@ qstZScore <- function(data, gender, age, area) {
   df.z.scores[7,2] <- 0-df.z.scores[7,2] #MPT
   df.z.scores[10,2] <- 0-df.z.scores[10,2] #MDT
   
+  # rename column
+  # df.z.scores %>%
+  #   rename(logValue = zScore)
   
   return(df.z.scores)
 }
