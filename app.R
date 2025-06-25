@@ -10,7 +10,9 @@
 library(shiny)
 library(bslib)
 
-source("qst_data_module.R")
+module_files <- list.files("modules", pattern = "\\.R$", 
+                           full.names = TRUE, recursive = TRUE)
+lapply(module_files, source)
 
 # Define UI for application that draws a histogram
 ui <- page_sidebar(
