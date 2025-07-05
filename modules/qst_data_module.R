@@ -43,7 +43,67 @@ qstDataUI <- function(id) {
       label = "WDT Value 3 (°C)",
       value = 34,
       min = 32,
-      max = 50)
+      max = 50),
+    
+    selectInput(
+      inputId = ns("mdtNot1"),
+      label = "MDT Value 1 Not Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdt1"),
+      label = "MDT Value 1 Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdtNot2"),
+      label = "MDT Value 2 Not Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdt2"),
+      label = "MDT Value 2 Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdtNot3"),
+      label = "MDT Value 3 Not Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdt3"),
+      label = "MDT Value 3 Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdtNot4"),
+      label = "MDT Value 4 Not Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdt4"),
+      label = "MDT Value 4 Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdtNot5"),
+      label = "MDT Value 5 Not Felt (mN)",
+      choices = 2^(-2:9)
+    ),
+    
+    selectInput(
+      inputId = ns("mdt5"),
+      label = "MDT Value 5 Felt (mN)",
+      choices = 2^(-2:9)
+    )
   )
 }
 
@@ -58,7 +118,12 @@ qstDataServer <- function(id) {
       wdt.sum <- ((input$wdt1-32) + (input$wdt2-32) + (input$wdt3-32))/3
       wdt.sum.log <- log10(wdt.sum)
       
-      df <- data.frame(parameter = c("CDT","WDT","TSL","CPT","HPT","PPT","MPT","MPS","WUR","MDT","VDT","PHS","DMA"), logValue = c(cdt.sum.log, wdt.sum.log, rep(0,11)))
+      req(input$mdtNot1, input$mdtNot2, input$mdtNot3, input$mdtNot4, input$mdtNot5, input$mdt1, input$mdt2, input$mdt3, input$mdt4, input$mdt5)
+      mdt <- as.numeric(c(input$mdtNot1, input$mdtNot2, input$mdtNot3, input$mdtNot4, input$mdtNot5, input$mdt1, input$mdt2, input$mdt3, input$mdt4, input$mdt5))
+      mdt.mean <- exp(mean(log(mdt)))
+      mdt.mean.log <- log10(mdt.mean)
+      
+      df <- data.frame(parameter = c("CDT","WDT","TSL","CPT","HPT","PPT","MPT","MPS","WUR","MDT","VDT","PHS","DMA"), logValue = c(cdt.sum.log, wdt.sum.log, rep(0,7), mdt.mean.log, rep(0,3)))
       df
     })
   })

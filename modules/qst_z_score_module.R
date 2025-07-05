@@ -1,12 +1,12 @@
 # qst_z_score_module.R
 
-library(shiny)
 library(rio)
 library(plyr)
 library(here)
 
 # Load static comparison dataset (once, when the module is sourced)
 df.qst.z <- import(here("data", "qst_z_values.csv"))
+# what is this doing? get the working directory where my R project is with here(), then go to the subdirectory. Thanks to https://github.com/jennybc/here_here and https://epirhandbook.com/en/new_pages/importing.html
 
 # SERVER MODULE
 qstZScoreServer <- function(id, data, gender, age, area) {

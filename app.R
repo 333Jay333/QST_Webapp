@@ -8,6 +8,8 @@ module_files <- list.files("modules", pattern = "\\.R$",
                            full.names = TRUE, recursive = TRUE)
 lapply(module_files, source)
 
+level_order <- c("CDT","WDT","TSL","CPT","HPT","PPT","MPT","MPS","WUR","MDT","VDT","PHS","DMA")
+
 # Define UI for application
 ui <- navbarPage(
   id = "qst",
@@ -150,7 +152,7 @@ server <- function(input, output, session) {
   
   output$test <- renderPlot({
     req(df.qst.zScores())
-    ggplot(df.qst.zScores(), aes(x = parameter, y = logValue)) +
+    ggplot(df.qst.zScores(), aes(x = factor(parameter, levels = level_order), y = logValue)) +
       geom_point()
   })
   
